@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     // 3. Hitung total nilai rupiah dan siapkan detail items
     let totalNominal = 0;
     const itemDetails = items.map((item: { id_jenis: number; berat_kg: number }) => {
-      const hargaPerKg = hargaMap.get(Number(item.id_jenis)) || 0;
+      const hargaPerKg = Number(hargaMap.get(Number(item.id_jenis))) || 0;
       const subtotal = hargaPerKg * Number(item.berat_kg);
       totalNominal += subtotal;
 
