@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model jenis_sampah {
+  id_jenis      Int             @id @default(autoincrement())
+  nama_jenis    String          @db.VarChar(50)
+  harga_per_kg  Decimal         @default(0) @db.Decimal(10, 2) 
+  laporan_jenis laporan_jenis[]
+}
+
+model laporan_jenis {
+  id_laporan     Int
+  id_jenis       Int
+  berat_kg       Decimal?       @db.Decimal(5, 2)
+  jenis_sampah   jenis_sampah   @relation(fields: [id_jenis], references: [id_jenis], onDelete: Cascade, onUpdate: NoAction)
+  laporan_sampah laporan_sampah @relation(fields: [id_laporan], references: [id_laporan], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([id_laporan, id_jenis])
+}
+
+model laporan_sampah {
+  id_laporan      Int             @id @default(autoincrement())
+  id_pengguna     Int
+  lokasi          String?
+  tanggal_laporan DateTime?       @db.Date
+  status          String?         @db.VarChar(20)
+  laporan_jenis   laporan_jenis[]
+  pengguna        pengguna        @relation(fields: [id_pengguna], references: [id_pengguna], onDelete: NoAction, onUpdate: NoAction)
+  transaksi       transaksi[]
+}
+
+model pengguna {
+  id_pengguna     Int               @id @default(autoincrement())
+  nama            String            @db.VarChar(100)
+  email           String            @unique @db.VarChar(100)
+  password        String
+  no_hp           String?           @db.VarChar(20)
+  laporan_sampah  laporan_sampah[]
+  profil_pengguna profil_pengguna?
+  transaksi       transaksi[]
+  dompet_pengguna dompet_pengguna?
+}
+
+model profil_pengguna {
+  id_pengguna   Int       @id
+  alamat        String?
+  tanggal_lahir DateTime? @db.Date
+  pengguna      pengguna  @relation(fields: [id_pengguna], references: [id_pengguna], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model dompet_pengguna {
+  id_pengguna Int      @id
+  saldo       Decimal  @default(0) @db.Decimal(12, 2)
+  updated_at  DateTime @default(now()) @updatedAt
+  
+  pengguna    pengguna @relation(fields: [id_pengguna], references: [id_pengguna], onDelete: Cascade)
+}
+
+model transaksi {
+  id_transaksi    Int             @id @default(autoincrement())
+  id_pengguna     Int
+  id_laporan      Int?            
+  
+  jenis_transaksi String          @db.VarChar(20) 
+  nominal         Decimal         @db.Decimal(12, 2)
+  tanggal         DateTime        @default(now()) @db.Timestamp(6)
+  keterangan      String?         @db.Text        
+  
+  pengguna        pengguna        @relation(fields: [id_pengguna], references: [id_pengguna], onDelete: Cascade)
+  laporan_sampah  laporan_sampah? @relation(fields: [id_laporan], references: [id_laporan], onDelete: SetNull)
+}
