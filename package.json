@@ -5,9 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "postinstall": "prisma generate"
+    "start": "prisma generate && next build",
+    "lint": "eslint"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
